@@ -1,4 +1,12 @@
 {
-  imports =
-    [ ./core ./coding ./colorscheme ./editor ./ui ./treesitter ./core.nix ];
+  imports = [
+    ./coding
+    ./colorscheme
+    ./config
+    ./editor
+    ./treesitter
+    ./ui
+    ./util
+    ./core.nix
+  ];
 }

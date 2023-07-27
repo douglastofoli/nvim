@@ -1,1 +1,1 @@
-{ imports = [ ./lualine.nix ./which-key.nix ]; }
+{ imports = [ ./bufferline.nix ./dressing.nix ./lualine.nix ./which-key.nix ]; }
