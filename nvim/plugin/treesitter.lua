@@ -1,97 +1,34 @@
-if vim.g.did_load_treesitter_plugin then
-  return
-end
-vim.g.did_load_treesitter_plugin = true
+-- plugin/treesitter.lua
+local ok, ts_configs = pcall(require, "nvim-treesitter.configs")
+if not ok then return end
 
-local configs = require('nvim-treesitter.configs')
-vim.g.skip_ts_context_comment_string_module = true
+-- Diretório de parsers gravável (fora da Nix store)
+local install = require("nvim-treesitter.install")
+local parser_dir = vim.fn.stdpath("data") .. "/parsers"
+vim.fn.mkdir(parser_dir, "p")                 -- garante que existe
+vim.opt.runtimepath:append(parser_dir)        -- rtp precisa conhecer o dir
+install.prefer_git = false                    -- usa release tarball quando possível
+-- install.compilers = { "clang", "gcc", "cc" } -- opcional: especifique compiladores
 
----@diagnostic disable-next-line: missing-fields
-configs.setup {
-  -- ensure_installed = 'all',
-  -- auto_install = false, -- Do not automatically install missing parsers when entering buffer
-  highlight = {
+ts_configs.setup({
+  -- Liste suas linguagens, mas sem auto-instalação automática
+  ensure_installed = {
+    "elixir", "heex", "eex",
+    "lua", "vim", "vimdoc", "query",
+    "bash", "json", "yaml", "toml",
+    "markdown", "regex", "gitignore",
+  },
+  parser_install_dir = parser_dir,
+  auto_install = false,        -- evita tentar instalar ao abrir arquivo
+  highlight = { enable = true },
+  indent = { enable = true },
+  incremental_selection = {
     enable = true,
-    disable = function(_, buf)
-      local max_filesize = 100 * 1024 -- 100 KiB
-      local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
-      if ok and stats and stats.size > max_filesize then
-        return true
-      end
-    end,
-  },
-  textobjects = {
-    select = {
-      enable = true,
-      -- Automatically jump forward to textobject, similar to targets.vim
-      lookahead = true,
-      keymaps = {
-        ['af'] = '@function.outer',
-        ['if'] = '@function.inner',
-        ['ac'] = '@class.outer',
-        ['ic'] = '@class.inner',
-        ['aC'] = '@call.outer',
-        ['iC'] = '@call.inner',
-        ['a#'] = '@comment.outer',
-        ['i#'] = '@comment.outer',
-        ['ai'] = '@conditional.outer',
-        ['ii'] = '@conditional.outer',
-        ['al'] = '@loop.outer',
-        ['il'] = '@loop.inner',
-        ['aP'] = '@parameter.outer',
-        ['iP'] = '@parameter.inner',
-      },
-      selection_modes = {
-        ['@parameter.outer'] = 'v', -- charwise
-        ['@function.outer'] = 'V', -- linewise
-        ['@class.outer'] = '<c-v>', -- blockwise
-      },
-    },
-    swap = {
-      enable = true,
-      swap_next = {
-        ['<leader>a'] = '@parameter.inner',
-      },
-      swap_previous = {
-        ['<leader>A'] = '@parameter.inner',
-      },
-    },
-    move = {
-      enable = true,
-      set_jumps = true, -- whether to set jumps in the jumplist
-      goto_next_start = {
-        [']m'] = '@function.outer',
-        [']P'] = '@parameter.outer',
-      },
-      goto_next_end = {
-        [']m'] = '@function.outer',
-        [']P'] = '@parameter.outer',
-      },
-      goto_previous_start = {
-        ['[m'] = '@function.outer',
-        ['[P'] = '@parameter.outer',
-      },
-      goto_previous_end = {
-        ['[m'] = '@function.outer',
-        ['[P'] = '@parameter.outer',
-      },
-    },
-    lsp_interop = {
-      enable = true,
-      peek_definition_code = {
-        ['df'] = '@function.outer',
-        ['dF'] = '@class.outer',
-      },
+    keymaps = {
+      init_selection = "gnn",
+      node_incremental = "grn",
+      scope_incremental = "grc",
+      node_decremental = "grm",
     },
   },
-}
-
-require('treesitter-context').setup {
-  max_lines = 3,
-}
-
-require('ts_context_commentstring').setup()
-
--- Tree-sitter based folding
--- vim.opt.foldmethod = 'expr'
-vim.opt.foldexpr = 'nvim_treesitter#foldexpr()'
+})

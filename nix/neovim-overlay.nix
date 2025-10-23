@@ -6,6 +6,7 @@ with final.pkgs.lib; let
     pkgs.vimUtils.buildVimPlugin {
       inherit pname src;
       version = src.lastModifiedDate;
+      doCheck = false;
     };
 
   pkgs-locked = inputs.nixpkgs.legacyPackages.${pkgs.system};
@@ -15,44 +16,44 @@ with final.pkgs.lib; let
   };
 
   all-plugins = with pkgs.vimPlugins; [
-    nvim-treesitter.withAllGrammars
-    luasnip
+    # Core
+    (mkNvimPlugin inputs.plenary-nvim "plenary.nvim")
 
-    nvim-cmp
-    cmp_luasnip
-    lspkind-nvim
-    cmp-nvim-lsp
-    cmp-nvim-lsp-signature-help
-    cmp-buffer
-    cmp-path
-    cmp-nvim-lua
-    cmp-cmdline
-    cmp-cmdline-history
+    # LSP / Autocomplete / Snippets
+    (mkNvimPlugin inputs.nvim-lspconfig "nvim-lspconfig")
+    (mkNvimPlugin inputs.elixir-tools-nvim "elixir-tools.nvim")
+    (mkNvimPlugin inputs.nvim-cmp "nvim-cmp")
+    (mkNvimPlugin inputs.cmp-nvim-lsp "cmp-nvim-lsp")
+    (mkNvimPlugin inputs.cmp-buffer "cmp-buffer")
+    (mkNvimPlugin inputs.cmp-path "cmp-path")
+    (mkNvimPlugin inputs.cmp-luasnip "cmp-luasnip")
+    (mkNvimPlugin inputs.luasnip "luasnip")
+    (mkNvimPlugin inputs.friendly-snippets "friendly-snippets")
 
-    diffview-nvim
-    neogit
-    gitsigns-nvim
-    vim-fugitive
+    # Syntax
+    (mkNvimPlugin inputs.nvim-treesitter "nvim-treesitter")
 
-    telescope-nvim
-    telescope-fzy-native-nvim
-    lualine-nvim
-    nvim-navic
-    statuscol-nvim
-    nvim-treesitter-context
-    vim-unimpaired
-    eyeliner-nvim
-    nvim-surround
-    nvim-treesitter-textobjects
-    nvim-ts-context-commentstring
-    nvim-unception
-    sqlite-lua
-    plenary-nvim
-    nvim-web-devicons
-    vim-repeat
+    # Files
+    (mkNvimPlugin inputs.telescope-nvim "telescope.nvim")
+    (mkNvimPlugin inputs.telescope-fzf-native "telescope-fzf-native.nvim")
+    (mkNvimPlugin inputs.neo-tree-nvim "neo-tree.nvim")
+    (mkNvimPlugin inputs.nvim-web-devicons "nvim-web-devicons")
+
+    # UI
+    (mkNvimPlugin inputs.lualine-nvim "lualine.nvim")
+    (mkNvimPlugin inputs.noice-nvim "noice.nvim")
+    (mkNvimPlugin inputs.dressing-nvim "dressing.nvim")
+    #(mkNvimPlugin inputs.which-key-nvim "which-key.nvim")
     which-key-nvim
+    (mkNvimPlugin inputs.wf-nvim "wf.nvim")
 
-    # (mkNvimPlugin inputs.wf-nvim "wf.nvim")
+    # Git
+    (mkNvimPlugin inputs.gitsigns-nvim "gitsigns.nvim")
+    (mkNvimPlugin inputs.diffview-nvim "diffview.nvim")
+
+    # AI / Copilot
+    (mkNvimPlugin inputs.copilot-lua "copilot.lua")
+    (mkNvimPlugin inputs.copilot-cmp "copilot-cmp")
   ];
 
   extraPackages = with pkgs; [
